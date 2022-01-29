@@ -15,7 +15,7 @@ export const BottleFiller: React.FunctionComponent<{}> = () => {
         dispatch(initBottles())
     }, [])
     return <div className="bottle-game">
-        <section className="pointTable">{`points : ${points}`}</section>
+        <section className="pointTable"><h1>{`points : ${points}`}</h1></section>
         <div className="grid" style={{ gridTemplateColumns, gridAutoRows }}>
             {bottles.map(bottle => <BottleHolder hasSelected={hasSelected} key={bottle.id} {...bottle} />)}
         </div>
