@@ -41,7 +41,27 @@ $water-radius: 5px 5px 0px 0px;
         border: 1px solid $glass-border;
 
         &.active {
-            margin-bottom: 10px;
+            animation: bounce 1s infinite alternate;
+            -webkit-animation: bounce 1s infinite alternate;
         }
     }
 }
+
+
+
+@keyframes bounce {
+    from {
+      transform: translateY(0px);
+    }
+    to {
+      transform: translateY(-15px);
+    }
+  }
+  @-webkit-keyframes bounce {
+    from {
+      transform: translateY(0px);
+    }
+    to {
+      transform: translateY(-15px);
+    }
+  }

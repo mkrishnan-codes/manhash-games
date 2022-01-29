@@ -62,6 +62,7 @@ export const bottleSlice = createSlice({
           state.items = state.items.map(bot => {
             if (bot.id === action.payload) {
               if (bot && bot.slices.length < MAX_SLICE_IN_BOTTLE) {
+                state.items[sourceIndex].selected=false;
                 if (bot.slices.length === 0) {
                   consoleLog(state.items[sourceIndex].slices, "b4")
                   state.items[sourceIndex].slices.pop();
