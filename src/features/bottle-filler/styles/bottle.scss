@@ -1,5 +1,8 @@
 $glass: #f6feff;
 $glass-border: #bdc3c7;
+$tube-radius: 0px 0 20px 20px;
+$water-radius: 5px 5px 0px 0px;
+
 .grid {
     display: grid;
 }
@@ -10,11 +13,34 @@ $glass-border: #bdc3c7;
     .bottle {
         width: 20%;
         height: 75%;
-        background: $glass;
-        border: 1px solid $glass-border;
+        border-radius: $tube-radius;
         display: flex;
-        flex-direction: column-reverse;
-        &.active{
+        justify-content: center;
+        .bottle-content {
+            width: 99%;
+            height: 100%;
+            display: flex;
+            flex-direction: column-reverse;
+            .slice{
+                &:last-child{
+                    border-radius: $water-radius;
+                }
+                &:first-child{
+                    border-radius: $tube-radius;
+
+
+                }
+            }
+        }
+        background: linear-gradient(
+            90deg,
+            rgba(174, 208, 237, 0.3) 0%,
+            rgba(166, 204, 235, 0.3) 50%,
+            rgba(81, 168, 220, 0.3) 100%
+        );
+        border: 1px solid $glass-border;
+
+        &.active {
             margin-bottom: 10px;
         }
     }

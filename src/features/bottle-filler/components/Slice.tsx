@@ -5,7 +5,7 @@ interface ISliceProps extends ISlice {
 }
 
 const Slice: React.FunctionComponent<ISliceProps> = (props) => {
-    return <div className='slice' style={{ background: props.color, height: props.height }}>{props.id}</div>;
+    return <div className='slice' style={{ background: props.color, height: props.height }}></div>;
 };
 
 export default Slice;
