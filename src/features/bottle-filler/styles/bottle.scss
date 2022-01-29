@@ -1,3 +1,21 @@
-.grid{
+$glass: #f6feff;
+$glass-border: #bdc3c7;
+.grid {
     display: grid;
+}
+.bottle-holder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .bottle {
+        width: 20%;
+        height: 75%;
+        background: $glass;
+        border: 1px solid $glass-border;
+        display: flex;
+        flex-direction: column-reverse;
+        &.active{
+            margin-bottom: 10px;
+        }
+    }
 }

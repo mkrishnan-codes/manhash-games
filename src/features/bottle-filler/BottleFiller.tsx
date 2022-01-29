@@ -12,8 +12,6 @@ export const BottleFiller: React.FunctionComponent<{}> = () => {
     useEffect(() => {
         dispatch(initBottles())
     }, [])
-    console.log(bottles,"botles");
-    
     return <div className="grid" style={{ gridTemplateColumns, gridAutoRows }}>
         {bottles.map(bottle => <BottleHolder key={bottle.id} {...bottle} />)}
     </div>
