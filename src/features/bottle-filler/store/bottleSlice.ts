@@ -108,4 +108,5 @@ export const { initBottles, selectSourceBottle, selectTargetBottle, checkAllColo
 
 export const selectBottles = (state: RootState) => state.bottles.items;
 export const selectHasSelected = (state: RootState) => !!state.bottles.source;
+export const selectPoints = (state: RootState) => state.bottles.point;
 

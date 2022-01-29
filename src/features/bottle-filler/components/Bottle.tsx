@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useEffect } from 'react';
 import { useAppDispatch } from '../../../app/hooks';
 import { IBottle, selectSourceBottle, selectTargetBottle, checkAllColorSame } from '../store/bottleSlice';
 import Slice from './Slice';
@@ -9,17 +9,23 @@ interface IBottleProps extends IBottle {
 
 const Bottle: React.FunctionComponent<IBottleProps> = (props) => {
   const dispatch = useAppDispatch();
-  // const clickFn = () => dispatch(props.hasSelected ? selectTargetBottle(props.id) : selectSourceBottle(props.id));
-
+  let timer: any;
   const fn = () => {
     if (props.hasSelected) {
       dispatch(selectTargetBottle(props.id))
-      dispatch(checkAllColorSame(props.id))
+      timer = setTimeout(() => {
+        dispatch(checkAllColorSame(props.id))
+      }, 2000);
     } else {
       dispatch(selectSourceBottle(props.id));
     }
 
   }
+  useEffect(() => {
+    return () => {
+      clearTimeout(timer)
+    };
+  }, [])
   return <div className={`bottle ${props.selected ? 'active' : ''}`} onClick={fn}>{
     props.slices.map(slc => <Slice key={slc.id} {...slc} />)
   }</div>;
