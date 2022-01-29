@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/manhash-games/static/css/main.8e2bb7f1.css",
-    "main.js": "/manhash-games/static/js/main.13f3538d.js",
+    "main.js": "/manhash-games/static/js/main.a5252a50.js",
     "index.html": "/manhash-games/index.html",
     "main.8e2bb7f1.css.map": "/manhash-games/static/css/main.8e2bb7f1.css.map",
-    "main.13f3538d.js.map": "/manhash-games/static/js/main.13f3538d.js.map"
+    "main.a5252a50.js.map": "/manhash-games/static/js/main.a5252a50.js.map"
   },
   "entrypoints": [
     "static/css/main.8e2bb7f1.css",
-    "static/js/main.13f3538d.js"
+    "static/js/main.a5252a50.js"
   ]
 }
