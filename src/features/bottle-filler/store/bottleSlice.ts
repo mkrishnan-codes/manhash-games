@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../../app/store";
+import { consoleLog } from "../../../utils/common-util";
 import { AVAIL_COLORS, COLUMNS, MAX_SLICE_IN_BOTTLE, POINT_FACTOR, ROWS } from "../constants/bottle-app-configs";
 export interface ISlice {
   id: string | number,
@@ -61,11 +62,22 @@ export const bottleSlice = createSlice({
           state.items = state.items.map(bot => {
             if (bot.id === action.payload) {
               if (bot && bot.slices.length < MAX_SLICE_IN_BOTTLE) {
-                const targetSlice = bot?.slices[bot.slices.length - 1];
-                if (targetSlice && targetSlice.color === sourceSlice.color) {
+                if (bot.slices.length === 0) {
+                  consoleLog(state.items[sourceIndex].slices, "b4")
                   state.items[sourceIndex].slices.pop();
+                  consoleLog(state.items[sourceIndex].slices, "after")
+
                   state.source = null;
                   return { ...bot, slices: [...bot.slices, { ...sourceSlice }] }
+                } else {
+                  console.log(state.items[sourceIndex].slices, "ELSE");
+
+                  const targetSlice = bot?.slices[bot.slices.length - 1];
+                  if (targetSlice && targetSlice.color === sourceSlice.color) {
+                    state.items[sourceIndex].slices.pop();
+                    state.source = null;
+                    return { ...bot, slices: [...bot.slices, { ...sourceSlice }] }
+                  }
                 }
               }
             }
@@ -81,9 +93,10 @@ export const bottleSlice = createSlice({
       const source = state.items[sourceIndex];
       const clr = source?.slices[0]?.color;
       if (clr) {
-        const every = source?.slices.every(slc => slc.color === clr);
+        const every = source?.slices.length === MAX_SLICE_IN_BOTTLE && source?.slices.every(slc => slc.color === clr);
         if (every) {
           state.point += POINT_FACTOR;
+          state.items[sourceIndex] = getABottle(state.items.length + 1, false)
         }
       }
 
