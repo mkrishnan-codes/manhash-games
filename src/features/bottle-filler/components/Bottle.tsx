@@ -26,10 +26,6 @@ const Bottle: React.FunctionComponent<IBottleProps> = (props) => {
       clearTimeout(timer)
     };
   }, [])
-  // return <div className={`bottle ${props.selected ? 'active' : ''}`} onClick={fn}>{
-  //   props.slices.map(slc => <Slice key={slc.id} {...slc} />)
-  // }</div>;
-
   return (
     <div className={`bottle tube ${props.selected ? 'active' : ''}`} onClick={fn}>
       <div className="tube__top"></div>
