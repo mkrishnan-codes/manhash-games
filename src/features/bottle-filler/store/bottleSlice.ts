@@ -55,34 +55,27 @@ export const bottleSlice = createSlice({
     },
     selectTargetBottle: (state, action: PayloadAction<string | number>) => {
       const sourceIndex = state.items.findIndex(bot => bot.id === state.source);
+      state.source = null;
+      state.items[sourceIndex].selected=false;
       const source = state.items[sourceIndex];
       if (source && source.slices.length > 0) {
         const sourceSlice = source?.slices[source.slices.length - 1];
         if (sourceSlice) {
-          state.items = state.items.map(bot => {
+          state.items.forEach(bot => {
             if (bot.id === action.payload) {
               if (bot && bot.slices.length < MAX_SLICE_IN_BOTTLE) {
-                state.items[sourceIndex].selected=false;
                 if (bot.slices.length === 0) {
-                  consoleLog(state.items[sourceIndex].slices, "b4")
                   state.items[sourceIndex].slices.pop();
-                  consoleLog(state.items[sourceIndex].slices, "after")
-
-                  state.source = null;
-                  return { ...bot, slices: [...bot.slices, { ...sourceSlice }] }
+                  bot.slices = [...bot.slices, { ...sourceSlice }]
                 } else {
-                  console.log(state.items[sourceIndex].slices, "ELSE");
-
                   const targetSlice = bot?.slices[bot.slices.length - 1];
                   if (targetSlice && targetSlice.color === sourceSlice.color) {
                     state.items[sourceIndex].slices.pop();
-                    state.source = null;
-                    return { ...bot, slices: [...bot.slices, { ...sourceSlice }] }
+                   bot.slices= [...bot.slices, { ...sourceSlice }] 
                   }
                 }
               }
             }
-            return bot;
           })
         }
       }
