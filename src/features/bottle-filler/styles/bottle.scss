@@ -43,11 +43,11 @@ $water-radius: 5px 5px 0px 0px;
       border: 1px solid $glass-border;
 
       &.active {
-        // animation: bounce 1s infinite alternate;
-        // -webkit-animation: bounce 1s infinite alternate;
-        position: absolute;
-        top: 30px;
-        left: 100px;
+        animation: bounce 1s infinite alternate;
+        -webkit-animation: bounce 1s infinite alternate;
+        // position: absolute;
+        // top: 30px;
+        // left: 100px;
       }
     }
   }

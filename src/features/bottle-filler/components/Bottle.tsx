@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { useAppDispatch } from '../../../app/hooks';
-import { IBottle, selectSourceBottle, selectTargetBottle, checkAllColorSame } from '../store/bottleSlice';
+import { useAppDispatch, useAppSelector } from '../../../app/hooks';
+import { IBottle, selectSourceBottle, selectTargetBottle, checkAllColorSame, selectFillable, fillBottleAsync } from '../store/bottleSlice';
 import Slice from './Slice';
 // import "../styles/tube.scss"
 export interface IMouse {
@@ -10,20 +10,21 @@ interface IBottleProps extends IBottle {
   hasSelected: boolean,
   mouse: IMouse
 }
+const getRect = ({ x, y, top, left, width, height }: DOMRect | any) => ({ x, y, top, left, width, height })
 
 const Bottle: React.FunctionComponent<IBottleProps> = (props) => {
   const dispatch = useAppDispatch();
-  const [pos, setPos] = useState({ top: 0, left: 0 });
-
+  const [pos, setPos] = useState<DOMRect>();
   let timer: any;
-  const fn = () => {
+  const fillable = useAppSelector(selectFillable)
+  const selectSourceOrTarget = () => {
     if (props.hasSelected) {
-      dispatch(selectTargetBottle(props.id))
+      dispatch(selectTargetBottle({ rect: getRect(pos), id: props.id }))
       timer = setTimeout(() => {
         dispatch(checkAllColorSame(props.id))
       }, 2000);
     } else {
-      dispatch(selectSourceBottle(props.id));
+      dispatch(selectSourceBottle({ rect: getRect(pos), id: props.id }));
     }
 
   }
@@ -33,21 +34,24 @@ const Bottle: React.FunctionComponent<IBottleProps> = (props) => {
 
     if (inputRef && inputRef.current) {
       const rect = inputRef?.current.getBoundingClientRect();
-      setPos({ top: rect.top, left: rect.left })
-      
+      setPos(rect)
+
     }
     return () => {
       clearTimeout(timer)
     };
   }, [])
-  let style;
-  if (props.selected) {
-    style = { top: props.mouse.top - pos.top, left: props.mouse.left-pos.left }
-  }
 
+  useEffect(() => {
+    if (fillable) {
+      dispatch(fillBottleAsync(3))
+    }
+  }, [fillable])
   return (
     <div className='bot-rel' >
-      <div ref={inputRef} className={`bottle tube ${props.selected ? 'active' : ''}`} style={style} onClick={fn}>
+      <div ref={inputRef}
+        className={`bottle tube ${props.selected ? 'active' : ''}`}
+        onClick={selectSourceOrTarget}>
         <div className="tube__top"></div>
         <div className="bottle-content">
           {props.slices.map(slc => <Slice key={slc.id} {...slc} />)}

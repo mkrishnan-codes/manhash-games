@@ -1,7 +1,8 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../../app/store";
 import { consoleLog } from "../../../utils/common-util";
 import { AVAIL_COLORS, COLUMNS, MAX_SLICE_IN_BOTTLE, POINT_FACTOR, ROWS } from "../constants/bottle-app-configs";
+import { giveTimeout } from "../services/async-op";
 export interface ISlice {
   id: string | number,
   color: string,
@@ -16,12 +17,19 @@ export interface IBottle {
 export interface BottlesState {
   total: number;
   items: IBottle[],
-  source: string | number | null,
-  target: string | number | null,
+  source: IPositionAndId | null,
+  target: IPositionAndId | null,
   status: 'idle' | 'loading' | 'failed';
   point: number,
+  fillable?: boolean
 }
-
+export interface IRect {
+  x: number, y: number, top: number, left: number, width: number, height: number
+}
+export interface IPositionAndId {
+  rect?: IRect,
+  id: string | number
+}
 const initialState: BottlesState = {
   total: 0,
   items: [],
@@ -40,6 +48,20 @@ const getABottle = (id: number, last?: boolean): IBottle => {
   const slices = last ? [] : Array.from(Array(MAX_SLICE_IN_BOTTLE - 1).keys()).map(val => getASlice(`${id}-${val}`))
   return { id, slices, maxSlice: MAX_SLICE_IN_BOTTLE, selected: false }
 }
+
+
+
+export const fillBottleAsync = createAsyncThunk(
+  'bottle/fillBottle',
+  async (amount: number) => {
+    const response = await giveTimeout(amount, 2000);
+    // The value we return becomes the `fulfilled` action payload
+    return response.data;
+  }
+);
+
+
+
 export const bottleSlice = createSlice({
   name: 'bottle',
   initialState,
@@ -49,29 +71,30 @@ export const bottleSlice = createSlice({
       state.total = ROWS * COLUMNS;
 
     },
-    selectSourceBottle: (state, action: PayloadAction<string | number>) => {
+    selectSourceBottle: (state, action: PayloadAction<IPositionAndId>) => {
       state.source = action.payload
-      state.items = state.items.map(bot => bot.id === action.payload ? { ...bot, selected: true } : bot)
+      state.items.forEach(bot => {
+        if (bot.id === action.payload.id) {
+          bot.selected = true
+        }
+      })
     },
-    selectTargetBottle: (state, action: PayloadAction<string | number>) => {
-      const sourceIndex = state.items.findIndex(bot => bot.id === state.source);
-      state.source = null;
-      state.items[sourceIndex].selected=false;
+    selectTargetBottle: (state, action: PayloadAction<IPositionAndId>) => {
+      const sourceIndex = state.items.findIndex(bot => bot.id === state.source?.id);
+      state.target = action.payload;
       const source = state.items[sourceIndex];
       if (source && source.slices.length > 0) {
         const sourceSlice = source?.slices[source.slices.length - 1];
         if (sourceSlice) {
           state.items.forEach(bot => {
-            if (bot.id === action.payload) {
+            if (bot.id === action.payload.id) {
               if (bot && bot.slices.length < MAX_SLICE_IN_BOTTLE) {
                 if (bot.slices.length === 0) {
-                  state.items[sourceIndex].slices.pop();
-                  bot.slices = [...bot.slices, { ...sourceSlice }]
+                  state.fillable = true;
                 } else {
                   const targetSlice = bot?.slices[bot.slices.length - 1];
                   if (targetSlice && targetSlice.color === sourceSlice.color) {
-                    state.items[sourceIndex].slices.pop();
-                   bot.slices= [...bot.slices, { ...sourceSlice }] 
+                    state.fillable = true;
                   }
                 }
               }
@@ -95,7 +118,31 @@ export const bottleSlice = createSlice({
       }
 
     }
-  }
+  },
+
+  extraReducers: (builder) => {
+    builder
+      .addCase(fillBottleAsync.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fillBottleAsync.fulfilled, (state, action) => {
+        state.status = 'idle';
+        const sourceIndex = state.items.findIndex(bot => bot.id === state.source?.id)
+        if (state.fillable) {
+          state.items.forEach(bot => {
+            if (bot.id === state.target?.id) {
+              const sourceSlice = state.items[sourceIndex].slices.pop();
+              if (sourceSlice) {
+                bot.slices = [...bot.slices, { ...sourceSlice }]
+              }
+            }
+          })
+        }
+        state.items[sourceIndex].selected = false;
+        state.source = null
+        state.fillable = false;
+      });
+  },
 })
 export default bottleSlice.reducer;
 export const { initBottles, selectSourceBottle, selectTargetBottle, checkAllColorSame } = bottleSlice.actions;
@@ -103,4 +150,5 @@ export const { initBottles, selectSourceBottle, selectTargetBottle, checkAllColo
 export const selectBottles = (state: RootState) => state.bottles.items;
 export const selectHasSelected = (state: RootState) => !!state.bottles.source;
 export const selectPoints = (state: RootState) => state.bottles.point;
+export const selectFillable = (state: RootState) => !!state.bottles.fillable;
 
