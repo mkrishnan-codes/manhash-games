@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
-import { IBottle, selectSourceBottle, selectTargetBottle, checkAllColorSame, selectFillable, fillBottleAsync } from '../store/bottleSlice';
+import { IBottle, selectSourceBottle, selectTargetBottle, checkAllColorSame, selectFillable, fillBottleAsync, selectTargetRect } from '../store/bottleSlice';
 import Slice from './Slice';
+import confirmSound from "../../../assets/sound/confirm.ogg";
+import maxSound from "../../../assets/sound/max.ogg";
 // import "../styles/tube.scss"
 export interface IMouse {
   top: number, left: number
@@ -11,12 +13,15 @@ interface IBottleProps extends IBottle {
   mouse: IMouse
 }
 const getRect = ({ x, y, top, left, width, height }: DOMRect | any) => ({ x, y, top, left, width, height })
+const audio1 = new Audio(confirmSound);
+const audio2 = new Audio(maxSound);
 
 const Bottle: React.FunctionComponent<IBottleProps> = (props) => {
   const dispatch = useAppDispatch();
   const [pos, setPos] = useState<DOMRect>();
   let timer: any;
   const fillable = useAppSelector(selectFillable)
+  const targetRect = useAppSelector(selectTargetRect);
   const selectSourceOrTarget = () => {
     if (props.hasSelected) {
       dispatch(selectTargetBottle({ rect: getRect(pos), id: props.id }))
@@ -24,6 +29,7 @@ const Bottle: React.FunctionComponent<IBottleProps> = (props) => {
         dispatch(checkAllColorSame(props.id))
       }, 2000);
     } else {
+      audio1.play();
       dispatch(selectSourceBottle({ rect: getRect(pos), id: props.id }));
     }
 
@@ -44,7 +50,23 @@ const Bottle: React.FunctionComponent<IBottleProps> = (props) => {
 
   useEffect(() => {
     if (fillable) {
-      dispatch(fillBottleAsync(3))
+      dispatch(fillBottleAsync(1))
+      audio2.play();
+      if (props.selected && targetRect && pos) {
+        console.log(targetRect.left - pos.left, targetRect.top - pos.top, "x,y");
+
+        inputRef?.current?.animate([
+          // keyframes
+          { transform: 'rotate(45deg)' },
+          { transform: `translate(${targetRect.left - pos.left}px,${targetRect.top - pos.top}px)` },
+          { transform: 'rotate(90deg)' },
+
+        ], {
+          // timing options
+          duration: 1000,
+          iterations: 1
+        });
+      }
     }
   }, [fillable])
   return (

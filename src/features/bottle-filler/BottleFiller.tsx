@@ -4,10 +4,12 @@ import { BottleHolder } from "./components/BottleHolder";
 import { COLUMNS, ROWS } from "./constants/bottle-app-configs";
 import { initBottles, selectBottles, selectHasSelected, selectPoints } from "./store/bottleSlice";
 import "./styles/bottle.scss";
+import pointSound from "../../assets/sound/point.ogg";
+const audio1 = new Audio(pointSound);
 
 export const BottleFiller: React.FunctionComponent<{}> = () => {
     const gridTemplateColumns = `repeat(${COLUMNS},1fr)`
-    const perHieght = window.screen.height / (ROWS + 1);
+    const perHieght = window.screen.height / (ROWS + 2);
     const gridAutoRows = `${perHieght}px`;
     const bottles = useAppSelector(selectBottles)
     const hasSelected = useAppSelector(selectHasSelected)
@@ -17,8 +19,13 @@ export const BottleFiller: React.FunctionComponent<{}> = () => {
     useEffect(() => {
         dispatch(initBottles())
     }, [])
+    useEffect(() => {
+        if (points) {
+            audio1.play()
+        }
+    }, [points])
     const setMouseClick = (e: any) => {
-        setMouse({ top: e.screenY , left: e.screenX })
+        setMouse({ top: e.screenY, left: e.screenX })
     }
     return <div className="bottle-game">
         <section className="pointTable"><h1>{`points : ${points}`}</h1></section>

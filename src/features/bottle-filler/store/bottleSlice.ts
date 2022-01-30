@@ -54,8 +54,7 @@ const getABottle = (id: number, last?: boolean): IBottle => {
 export const fillBottleAsync = createAsyncThunk(
   'bottle/fillBottle',
   async (amount: number) => {
-    const response = await giveTimeout(amount, 2000);
-    // The value we return becomes the `fulfilled` action payload
+    const response = await giveTimeout(amount, 1000);
     return response.data;
   }
 );
@@ -138,7 +137,9 @@ export const bottleSlice = createSlice({
             }
           })
         }
-        state.items[sourceIndex].selected = false;
+        if (state.items[sourceIndex]) {
+          state.items[sourceIndex].selected = false;
+        }
         state.source = null
         state.fillable = false;
       });
@@ -151,4 +152,5 @@ export const selectBottles = (state: RootState) => state.bottles.items;
 export const selectHasSelected = (state: RootState) => !!state.bottles.source;
 export const selectPoints = (state: RootState) => state.bottles.point;
 export const selectFillable = (state: RootState) => !!state.bottles.fillable;
+export const selectTargetRect = (state: RootState) => state.bottles.target?.rect;
 
